@@ -1,8 +1,8 @@
-![Keep-containers](https://raw.githubusercontent.com/swkeep/keep-containers/main/.github/images/keep-containers.jpg)
+![Keep-containers](https://raw.githubusercontent.com/swkeep/keep-containers/master/.github/images/keep-containers.jpg)
 
 # keep-containers
-By using this script your're going to have access to custom container depot zones.
-In `Container Depot` you can place you're containers and have access to them by password.
+By using this script you're going to have access to custom container depot zones.
+In Container Depot you can place containers and have access to them with a password.
 
 # Dependencies
 
@@ -16,6 +16,7 @@ OR
 - [esx-legacy](https://github.com/esx-framework/esx-legacy)
 - [keep-input](https://github.com/swkeep/keep-input) or [ox_lib](https://github.com/overextended/ox_lib)
 - [PolyZone](https://github.com/mkafrin/PolyZone)
+- [ox_inventory](https://github.com/overextended/ox_inventory)
 - [ox_target](https://github.com/overextended/ox_target)
 
 ## Features
@@ -23,18 +24,18 @@ OR
 - Custom container size and weight
 - Ability to transfer ownership of containers
 - Locking containers with password (encrypted by bcrypt)
-- Container Variance
+- Container variant
 - Dynamic object loading
 - Little bit of admin control (WIP)
-- Container placer! (i don't what to call it!)
+- Container placer! (i don't know what to call it!)
 
 ## Preview
 
 - [Version 1.0.0](https://youtu.be/dTQa6EVSSVc)
 
 ## Screenshots
-![Keep-containers](https://raw.githubusercontent.com/swkeep/keep-containers/main/.github/images/ox_target.jpg)
-![Keep-containers](https://raw.githubusercontent.com/swkeep/keep-containers/main/.github/images/qbtarget.jpg)
+![Keep-containers](https://raw.githubusercontent.com/swkeep/keep-containers/master/.github/images/ox_target.jpg)
+![Keep-containers](https://raw.githubusercontent.com/swkeep/keep-containers/master/.github/images/qbtarget.jpg)
 
 ## Installation
 
