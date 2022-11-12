@@ -112,7 +112,6 @@ local function ChooseSpawnLocation( model, offset )
     local plyped = PlayerPedId()
     local pedCoord = GetEntityCoords(plyped)
     local object_placed = false
-    local position_is_set = false
     local xy = "x"
     object = CreateObject(GetHashKey(model), pedCoord.x + offset.x, pedCoord.y + offset.y, pedCoord.z + offset.z, 1, 0, 0)
     SetEntityAlpha(object, 150, true)
@@ -216,6 +215,10 @@ RegisterNetEvent("keep-containers:client:container:place", function( container_t
         local zone_name, zone = GetCurrentZone()
         if inputData and inputData.password and inputData.password ~= "" then
             local container = GetContainerInfromation(container_type)
+            if not container then
+                print('contaienr type is wrong!')
+                return
+            end
             local position = ChooseSpawnLocation(container.object.name, container.object.offset)
 
             if position == "exit" then return end

@@ -13,7 +13,8 @@ Config = Config or {}
 
 Config.MagicTouch = false
 Config.FrameWork = "qb" -- qb/esx
-Config.input = "qb-input" -- keep-input / qb-input / ox_lib (esx)
+Config.input = "qb-input" -- keep-input / qb-input / ox_lib (ESX)
+Config.esx_target = "ox_target" -- ox_target / qtarget (ONLY ESX won't effect qbcore)
 
 Config.container_depots = {
     -- when adding new zone make sure it has enough minZ and maxZ or might get into issue with placing system

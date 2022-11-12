@@ -13,7 +13,7 @@ games {
  }
 
 author "Swkeep#7049"
-version "1.0.0"
+version "1.0.2"
 
 shared_scripts {
     -- "@ox_lib/init.lua",
@@ -27,8 +27,11 @@ client_scripts {
     "client/lib.lua",
     "client/actions.lua",
     "client/creator.lua",
+    "client/targets/qtarget.lua",
+    "client/targets/qbtarget.lua",
+    "client/targets/oxtarget.lua",
     "client/client.lua"
- }
+}
 
 server_scripts {
     "@oxmysql/lib/MySQL.lua",
