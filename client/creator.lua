@@ -211,9 +211,10 @@ RegisterNetEvent("keep-containers:client:container:place", function( container_t
             }
         }
 
-        local inputData, reason = exports[Config.input]:ShowInput(Input)
+        local inputData = exports[Config.input]:ShowInput(Input)
+
         local zone_name, zone = GetCurrentZone()
-        if reason == "submit" then
+        if inputData and inputData.password and inputData.password ~= "" then
             local container = GetContainerInfromation(container_type)
             local position = ChooseSpawnLocation(container.object.name, container.object.offset)
 
@@ -225,6 +226,8 @@ RegisterNetEvent("keep-containers:client:container:place", function( container_t
             else
                 -- Notification_C("Container is not in depot zone!")
             end
+        else
+            print("Use a better password!")
         end
     else
         local inputData = lib.inputDialog("Enter Password", {
@@ -276,14 +279,3 @@ AddEventHandler("onResourceStop", function( resource )
     if resource ~= GetCurrentResourceName() then return end
     DeleteEntity(object)
 end)
-
--- CreateThread(function()
---     while true do
---         local entity = SelectEntityAtCursor(32, true)
---         SetEntityDrawOutline(entity, true)
---         Wait(1000)
---     end
-
--- end)
-
--- CreateThread(function() LeaveCursorMode() end)
