@@ -90,13 +90,13 @@ local function Init()
     if loaded then return end
     loaded = true
     for k, v in pairs(Config.container_depots) do
+        CreateBlip(v.blip)
         ZONE[k] = PolyZone:Create(v.positions, {
             name = "c_depot " .. k,
             minZ = v.minz,
             maxZ = v.maxz,
             debugPoly = Config.MagicTouch
          })
-        CreateBlip(v.blip)
         ZONE[k]:onPlayerInOut(function( isPointInside )
             if isPointInside then
                 current_zone = k
@@ -108,7 +108,7 @@ local function Init()
                 Containers:clean_up()
                 HideDrawText()
             end
-        end)
+        end, 500)
     end
 end
 
