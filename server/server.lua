@@ -270,6 +270,11 @@ RegisterNetEvent("keep-containers:server:container:update_position", function( r
     local player = Player(src)
     local citizenid = GetCitizenId(player)
 
+    if type(new_position) ~= "vector4" then
+        Notification(src, "Wrong position type!", "primary")
+        return
+    end
+
     if not is_super_user(citizenid) then
         Notification(src, "Hmm, you can't do that!", "primary")
         TriggerClientEvent("keep-containers:client:update_zone", src, zone_name)
@@ -283,9 +288,11 @@ RegisterNetEvent("keep-containers:server:container:update_position", function( r
         MySQL.Async.execute("UPDATE keep_containers SET position = ? WHERE id = ?", {
             json.encode(new_position),
             res.id
-         }, function()
-            Notification(src, "Completed.", "primary")
-            TriggerClientEvent("keep-containers:client:update_zone", -1, zone_name)
+         }, function( res )
+            if res then
+                Notification(src, "Completed.", "primary")
+                TriggerClientEvent("keep-containers:client:update_zone", -1, zone_name)
+            end
         end)
     end)
 
