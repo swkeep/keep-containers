@@ -265,6 +265,32 @@ RegisterNetEvent("keep-containers:server:container:delete", function( random_id,
     end)
 end)
 
+RegisterNetEvent("keep-containers:server:container:update_position", function( random_id, zone_name, new_position )
+    local src = source
+    local player = Player(src)
+    local citizenid = GetCitizenId(player)
+
+    if not is_super_user(citizenid) then
+        Notification(src, "Hmm, you can't do that!", "primary")
+        TriggerClientEvent("keep-containers:client:update_zone", src, zone_name)
+        return
+    end
+
+    MySQL.Async.fetchAll("SELECT id,owner_citizenid,container_type FROM keep_containers WHERE random_id = ?", {
+        random_id
+     }, function( res )
+        res = res[1]
+        MySQL.Async.execute("UPDATE keep_containers SET position = ? WHERE id = ?", {
+            json.encode(new_position),
+            res.id
+         }, function()
+            Notification(src, "Completed.", "primary")
+            TriggerClientEvent("keep-containers:client:update_zone", -1, zone_name)
+        end)
+    end)
+
+end)
+
 ------------------------------
 --          ITEMS
 ------------------------------

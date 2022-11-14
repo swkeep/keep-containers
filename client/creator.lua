@@ -216,7 +216,7 @@ RegisterNetEvent("keep-containers:client:container:place", function( container_t
         if inputData and inputData.password and inputData.password ~= "" then
             local container = GetContainerInfromation(container_type)
             if not container then
-                print('contaienr type is wrong!')
+                print("contaienr type is wrong!")
                 return
             end
             local position = ChooseSpawnLocation(container.object.name, container.object.offset)
@@ -274,6 +274,40 @@ RegisterNetEvent("keep-containers:client:container:place", function( container_t
                     iconColor = "#C53030"
                 })
             end
+        end
+    end
+end)
+
+AddEventHandler("keep-containers:client:container:update_location", function( random_id, zone_name, container_type )
+    local current_zone, Zone = GetCurrentZone()
+    local container = GetContainerInfromation(container_type)
+    local position = ChooseSpawnLocation(container.object.name, container.object.offset)
+    if position == "exit" then
+        TriggerEvent("keep-containers:client:update_zone", zone_name)
+        return
+    end
+    local is_in_zone = Zone:isPointInside(position) -- this should be somehow server-side
+    if is_in_zone then
+        TriggerServerEvent("keep-containers:server:container:update_position", random_id, zone_name, position)
+    else
+        TriggerEvent("keep-containers:client:update_zone", zone_name)
+        if Config.input ~= "ox_lib" then
+            if Framework() == 1 then
+                Core.Functions.Notify("Container can't placed out side of depot!", "primary")
+            elseif Framework() == 2 then
+                TriggerEvent("esx:showNotification", "Container can't placed out side of depot!", "info")
+            end
+        else
+            lib.notify({
+                title = "Container Depot",
+                description = "Container can't placed out side of depot!",
+                style = {
+                    backgroundColor = "#141517",
+                    color = "#909296"
+                 },
+                icon = "ban",
+                iconColor = "#C53030"
+            })
         end
     end
 end)
