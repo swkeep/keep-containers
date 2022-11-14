@@ -259,7 +259,10 @@ RegisterNetEvent("keep-containers:server:container:delete", function( random_id,
         citizenid,
         random_id,
         zone_name
-     }, function() Notification(src, "Removed the container!", "primary") end)
+     }, function()
+        Notification(src, "Container has been removed!", "primary")
+        TriggerClientEvent("keep-containers:client:update_zone", -1, zone_name)
+    end)
 end)
 
 ------------------------------
