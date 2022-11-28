@@ -96,6 +96,19 @@ OR
         ["shouldClose"] = true,
         ["combinable"] = nil,
         ["description"] = "Small Green Container"
+    },
+
+    ["containerboltcutter"] = {
+        ["name"] = "containerboltcutter",
+        ["label"] = "Boltcutter",
+        ["weight"] = 1000,
+        ["type"] = "item",
+        ["image"] = "boltcutter.png",
+        ["unique"] = true,
+        ["useable"] = false,
+        ["shouldClose"] = false,
+        ["combinable"] = nil,
+        ["description"] = "a boltcutter to open containers by police"
     }
 ```
 
@@ -131,6 +144,14 @@ OR
         stack = false,
         close = true,
         description = nil
+     },
+
+    ["containerboltcutter"] = {
+        label = "Boltcutter",
+        weight = 1,
+        stack = false,
+        close = false,
+        description = 'a boltcutter to open containers by police'
      }
 ```
 

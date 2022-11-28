@@ -16,7 +16,7 @@ local current_zone
 local loaded = false
 
 Core = GetCoreObject() -- framwork
-
+local Framework = Framework()
 Containers = {
     data = {}
  }
@@ -27,7 +27,6 @@ function is_super_user( citizenid )
 end
 
 function PlayerData()
-    local Framework = Framework()
     if Framework == 1 then
         return Core.Functions.GetPlayerData()
     elseif Framework == 2 then
@@ -36,7 +35,6 @@ function PlayerData()
 end
 
 function GetCitizenId( PlayerData )
-    local Framework = Framework()
     if Framework == 1 then
         if not PlayerData then return -1 end
         return PlayerData.citizenid
@@ -45,10 +43,17 @@ function GetCitizenId( PlayerData )
     end
 end
 
-function Notification_c( msg, type )
-    local Framework = Framework()
+function GetJob()
+    local PlayerData = PlayerData()
+    if Framework == 1 then
+        return PlayerData.job.name ,PlayerData.job.grade.level
+    elseif Framework == 2 then
+        return PlayerData.job.name, PlayerData.job.grade
+    end
+end
 
-    if Config.input == "ox_lib" then if type == "primary" then type = "info" end end
+function Notification_c( msg, type )
+    if Config.input == "ox_lib" then if type == "primary" then type = "inform" end end
 
     if Config.input ~= "ox_lib" then
         if Framework == 1 then
@@ -73,7 +78,7 @@ function Notification_c( msg, type )
             lib.notify({
                 title = "Container Depot",
                 description = msg,
-                status = type
+                type = type
              })
         end
     end
@@ -96,7 +101,7 @@ local SpawnObject = function( model, coord, rotation, offset )
 end
 
 local function ShowDrawText( text )
-    if Framework() == 1 then
+    if Framework == 1 then
         exports["qb-core"]:DrawText(text or "Container Depot")
     elseif Config.input == "ox_lib" then
         lib.showTextUI(text or "Container Depot", {
@@ -167,7 +172,6 @@ function Containers:new( options )
      }
 
     local function add_target( entity )
-        local Framework = Framework()
         if Framework == 1 then
             Qb_target(private, entity)
         elseif Framework == 2 then
@@ -220,9 +224,9 @@ AddEventHandler("onResourceStart", function( resourceName )
     Init()
 end)
 
-if Framework() == 1 then
+if Framework == 1 then
     RegisterNetEvent("QBCore:Client:OnPlayerLoaded", function() Init() end)
-elseif Framework() == 2 then
+elseif Framework == 2 then
     RegisterNetEvent("esx:playerLoaded")
     AddEventHandler("esx:playerLoaded", function() Init() end)
 end

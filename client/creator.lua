@@ -195,6 +195,11 @@ local function ChooseSpawnLocation( model, offset )
 end
 
 RegisterNetEvent("keep-containers:client:container:place", function( container_type )
+    local zone_name, Zone = GetCurrentZone()
+    if not zone_name or not Zone then
+        Notification_c("The container cannot be placed outside the depot!", "error")
+        return
+    end
     if Config.input ~= "ox_lib" then
         local Input = {
             header = "Set Password", -- qb-input
@@ -212,7 +217,6 @@ RegisterNetEvent("keep-containers:client:container:place", function( container_t
 
         local inputData = exports[Config.input]:ShowInput(Input)
 
-        local zone_name, zone = GetCurrentZone()
         if inputData and inputData.password and inputData.password ~= "" then
             local container = GetContainerInfromation(container_type)
             if not container then
@@ -222,15 +226,14 @@ RegisterNetEvent("keep-containers:client:container:place", function( container_t
             local position = ChooseSpawnLocation(container.object.name, container.object.offset)
 
             if position == "exit" then return end
-            local current_zone, Zone = GetCurrentZone()
             local is_in_zone = Zone:isPointInside(position) -- this should be somehow server-side
             if is_in_zone then
-                TriggerServerEvent("keep-containers:server:create_container", inputData.password, position, current_zone)
+                TriggerServerEvent("keep-containers:server:create_container", inputData.password, position, zone_name)
             else
-                -- Notification_C("Container is not in depot zone!")
+                Notification_c("The container is outside of depot!", "error")
             end
         else
-            print("Use a better password!")
+            Notification_c("Use a better password!", "error")
         end
     else
         local inputData = lib.inputDialog("Enter Password", {
@@ -246,40 +249,26 @@ RegisterNetEvent("keep-containers:client:container:place", function( container_t
             local position = ChooseSpawnLocation(container.object.name, container.object.offset)
 
             if position == "exit" then
-                lib.notify({
-                    title = "Container Depot",
-                    description = "Container placement disabled!",
-                    style = {
-                        backgroundColor = "#141517",
-                        color = "#909296"
-                     },
-                    icon = "ban",
-                    iconColor = "#C53030"
-                })
+                Notification_c("The container placement has been cancelled!", "error")
                 return
             end
-            local current_zone, Zone = GetCurrentZone()
+
             local is_in_zone = Zone:isPointInside(position) -- this should be somehow server-side
             if is_in_zone then
-                TriggerServerEvent("keep-containers:server:create_container", inputData[1], position, current_zone)
+                TriggerServerEvent("keep-containers:server:create_container", inputData[1], position, zone_name)
             else
-                lib.notify({
-                    title = "Container Depot",
-                    description = "Container is not inside depot!",
-                    style = {
-                        backgroundColor = "#141517",
-                        color = "#909296"
-                     },
-                    icon = "ban",
-                    iconColor = "#C53030"
-                })
+                Notification_c("The container is outside of depot!", "error")
             end
         end
     end
 end)
 
 AddEventHandler("keep-containers:client:container:update_location", function( random_id, zone_name, container_type )
-    local current_zone, Zone = GetCurrentZone()
+    local _, Zone = GetCurrentZone()
+    if not zone_name or not Zone then
+        Notification_c("The container cannot be placed outside the depot!", "error")
+        return
+    end
     local container = GetContainerInfromation(container_type)
     local position = ChooseSpawnLocation(container.object.name, container.object.offset)
     if position == "exit" then
@@ -291,24 +280,7 @@ AddEventHandler("keep-containers:client:container:update_location", function( ra
         TriggerServerEvent("keep-containers:server:container:update_position", random_id, zone_name, position)
     else
         TriggerEvent("keep-containers:client:update_zone", zone_name)
-        if Config.input ~= "ox_lib" then
-            if Framework() == 1 then
-                Core.Functions.Notify("Container can't placed out side of depot!", "primary")
-            elseif Framework() == 2 then
-                TriggerEvent("esx:showNotification", "Container can't placed out side of depot!", "info")
-            end
-        else
-            lib.notify({
-                title = "Container Depot",
-                description = "Container can't placed out side of depot!",
-                style = {
-                    backgroundColor = "#141517",
-                    color = "#909296"
-                 },
-                icon = "ban",
-                iconColor = "#C53030"
-            })
-        end
+        Notification_c("The container is outside of depot!", "error")
     end
 end)
 

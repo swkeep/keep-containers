@@ -169,16 +169,7 @@ function TransferOwnership( private, entity )
                 if alert == "confirm" then
                     TriggerServerEvent("keep-containers:server:container:transfer_ownership", private.random_id, zone_name, inputData[1])
                 else
-                    lib.notify({
-                        title = "Container Depot",
-                        description = "Operation has been canceled.",
-                        style = {
-                            backgroundColor = "#141517",
-                            color = "#909296"
-                         },
-                        icon = "ban",
-                        iconColor = "#C53030"
-                    })
+                    Notification_c("Transfer of ownership has been canceled.", "error")
                 end
             end
         end
@@ -320,8 +311,66 @@ function OpenContainer( private, entity )
     end
 end
 
+local function LoadAnimationDict( animation )
+    RequestAnimDict(animation)
+    while not HasAnimDictLoaded(animation) do Wait(25) end
+    return true
+end
+
+local function bolt_cutter( entity, random_id, zone_name )
+    local scene
+    local playerped = PlayerPedId()
+    local playercoords, pedRotation = GetEntityCoords(playerped), GetEntityRotation(playerped)
+    local animDict = "anim@scripted@heist@ig4_bolt_cutters@male@"
+    local scenePos = vector3(playercoords.x, playercoords.y, playercoords.z + 0.2)
+    local sceneRot = pedRotation
+    LoadAnimationDict(animDict)
+
+    local cutter = GetHashKey("h4_prop_h4_bolt_cutter_01a")
+    local bag = GetHashKey("ch_p_m_bag_var02_arm_s")
+    LoadModel(cutter)
+    LoadModel(bag)
+    -- spawn cutter
+    cutter = CreateObject(cutter, playercoords, 1, 1, 0)
+    -- spawn bag
+    bag = CreateObject(bag, playercoords, 1, 1, 0)
+
+    Wait(50)
+    scene = NetworkCreateSynchronisedScene(scenePos, sceneRot, 2, true, false, 1065353216, 0, 1.3)
+    NetworkAddPedToSynchronisedScene(playerped, scene, animDict, "action_male", 4.0, -4.0, 1033, 0, 1000.0, 0)
+    NetworkAddEntityToSynchronisedScene(cutter, scene, animDict, "action_cutter", 1.0, -1.0, 1148846080)
+    NetworkAddEntityToSynchronisedScene(bag, scene, animDict, "action_bag", 1.0, -1.0, 1148846080)
+    NetworkStartSynchronisedScene(scene)
+    Wait(5750)
+    NetworkStopSynchronisedScene(scene)
+    DeleteEntity(bag)
+    DeleteEntity(cutter)
+
+    TriggerServerEvent("keep-containers:server:open_with_bolt_cutter", random_id, zone_name)
+end
+
+RegisterNetEvent("keep-containers:targets:use_bolt_cutter", function( entity, random_id, zone_name ) bolt_cutter(entity, random_id, zone_name) end)
+
+function BoltCutter( private, entity )
+    local zone_name, Zone = GetCurrentZone()
+    if not zone_name or not Zone then
+        Notification_c("The container cannot be outside the depot!", "error")
+        return
+    end
+    TriggerServerEvent("keep-containers:server:use_bolt_cutter", entity, private.random_id, zone_name)
+end
+
 function SuperUser()
     local PlayerData = PlayerData()
     local citizenid = GetCitizenId(PlayerData)
     return is_super_user(citizenid)
+end
+
+function HasAccessToBoltCutter()
+    local job_name, job_grade = GetJob()
+    if Config.bolt_cutter[tostring(job_name)] then
+        if Config.bolt_cutter[tostring(job_name)][tonumber(job_grade)] and Config.bolt_cutter[tostring(job_name)][tonumber(job_grade)] == true then return true end
+        return false
+    end
+    return false
 end

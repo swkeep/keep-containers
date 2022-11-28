@@ -27,6 +27,12 @@ function Qb_target( private, entity )
                 label = "Move Container",
                 canInteract = function() return SuperUser() end,
                 action = function() MoveContainer(private, entity) end
+             },
+             {
+                icon = "fa-solid fa-scissors",
+                label = "Boltcutter (Police)",
+                canInteract = function() return HasAccessToBoltCutter() end,
+                action = function() BoltCutter(private, entity) end
              }
         },
         distance = 1.0

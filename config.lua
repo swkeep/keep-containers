@@ -62,3 +62,18 @@ Config.super_users = {
     ["Gxxxxxxx2"] = true, -- < in qb use character citizen id
     ["char1:8xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5"] = true --- < in esx use users's identifier 
 }
+
+-- Who can use BoltCutter (Police by defualt)
+
+Config.bolt_cutter = {
+    -- ['jobname'] = {grades}
+    ["police"] = {
+        -- [grade(number)] = true/false
+        [0] = true,
+        [1] = true
+    }
+}
+
+Config.remove_bolt_cutter_on_use = true
+-- Do not change this value (if you already have a bolt cutter item, you can change it to what you have)
+Config.bolt_cutter_item_name = "containerboltcutter"

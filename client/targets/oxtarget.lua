@@ -31,6 +31,13 @@ function Ox_target( private, entity )
             label = "Move Container",
             canInteract = function() return SuperUser() end,
             onSelect = function() MoveContainer(private, entity) end
+        },
+        {
+            icon = "fa-solid fa-scissors",
+            distance = 1.0,
+            label = "Boltcutter (Police)",
+            canInteract = function() return HasAccessToBoltCutter() end,
+            onSelect = function() BoltCutter(private, entity) end
         }
     })
 end
