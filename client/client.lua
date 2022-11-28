@@ -116,7 +116,7 @@ local function ShowDrawText( text )
 end
 
 local function HideDrawText()
-    if Framework() == 1 then
+    if Framework == 1 then
         exports["qb-core"]:HideText()
     elseif Config.input == "ox_lib" then
         lib.hideTextUI()
