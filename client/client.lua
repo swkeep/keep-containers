@@ -45,6 +45,42 @@ function GetCitizenId( PlayerData )
     end
 end
 
+function Notification_c( msg, type )
+    local Framework = Framework()
+
+    if Config.input == "ox_lib" then if type == "primary" then type = "info" end end
+
+    if Config.input ~= "ox_lib" then
+        if Framework == 1 then
+            Core.Functions.Notify(msg, type)
+        elseif Framework == 2 then
+            if type == "primary" then type = "info" end
+            TriggerEvent("esx:showNotification", msg, type)
+        end
+    else
+        if type == "error" then
+            lib.notify({
+                title = "Container Depot",
+                description = msg,
+                style = {
+                    backgroundColor = "#141517",
+                    color = "#909296"
+                 },
+                icon = "ban",
+                iconColor = "#C53030"
+            })
+        else
+            lib.notify({
+                title = "Container Depot",
+                description = msg,
+                status = type
+             })
+        end
+    end
+end
+
+RegisterNetEvent("keep-containers:client:notification", function( msg, type ) Notification_c(msg, type) end)
+
 local SpawnObject = function( model, coord, rotation, offset )
     local modelHash = GetHashKey(model)
     LoadModel(modelHash)
@@ -159,6 +195,7 @@ function Containers:new( options )
     constructor()
 
     Containers.data[options.random_id] = _self
+    setmetatable(Containers, _self)
     return _self
 end
 
