@@ -75,12 +75,25 @@ local function GetJob( source )
     end
 end
 
-local function HasAccessToBoltCutter( source )
-    local job_name, job_grade = GetJob(source)
+local function HasAccessToBoltCutter( source  , random_id )
+    -- local job_name, job_grade = GetJob(source)
 
-    if Config.bolt_cutter[tostring(job_name)] then
-        if Config.bolt_cutter[tostring(job_name)][tonumber(job_grade)] and Config.bolt_cutter[tostring(job_name)][tonumber(job_grade)] == true then return true end
-        return false
+    -- if Config.bolt_cutter[tostring(job_name)] then
+    --     if Config.bolt_cutter[tostring(job_name)][tonumber(job_grade)] and Config.bolt_cutter[tostring(job_name)][tonumber(job_grade)] == true then return true end
+    --     return false
+    -- end
+    -- return false
+    local res = MySQL.Sync.fetchAll("SELECT owner_citizenid FROM keep_containers WHERE random_id = ?", {
+        random_id
+     })
+     res = res[1]
+     
+    local src = source
+    local Player = Player(src)
+    local citizenid = GetCitizenId(Player)
+
+    if ( Core.Functions.GetPlayerByCitizenId(res.owner_citizenid) ) then
+        return true
     end
     return false
 end
@@ -216,8 +229,8 @@ RegisterNetEvent("keep-containers:server:use_bolt_cutter", function( entity, ran
         Notification_S(src, "You don't have on a single boltcutter on you", "error")
         return
     end
-    if not HasAccessToBoltCutter(src) then
-        Notification_S(src, "You can't use boltcutter", "error")
+    if not HasAccessToBoltCutter(src , random_id) then
+        Notification_S(src, "Owner is not online.", "error")
         return
     end
     TriggerClientEvent("keep-containers:targets:use_bolt_cutter", src, entity, random_id, zone_name)
@@ -226,8 +239,8 @@ end)
 RegisterNetEvent("keep-containers:server:open_with_bolt_cutter", function( random_id, zone_name )
     local src = source
     local player = Player(src)
-    if not HasAccessToBoltCutter(src) then
-        Notification_S(src, "You can't use boltcutter", "error")
+    if not HasAccessToBoltCutter(src , random_id) then
+        Notification_S(src, "Owner is not online.", "error")
         return
     end
     if not HasBoltCutter(src, player) then
@@ -345,20 +358,27 @@ RegisterNetEvent("keep-containers:server:container:delete", function( random_id,
     local player = Player(src)
     local citizenid = GetCitizenId(player)
 
-    if not is_super_user(citizenid) then
-        Notification_S(src, "Hmm, you can't do that!", "primary")
-        return
-    end
+    MySQL.Async.fetchAll("SELECT id,owner_citizenid FROM keep_containers WHERE random_id = ?", {
+        random_id
+     }, function( res )
+        res = res[1]
+        if not (is_owner(res.owner_citizenid, citizenid) or is_super_user(citizenid)) then
+            Notification_S(src, "Hmm, you can't do that!", "primary")
+            return
+        end
+        
+        MySQL.Async.execute("UPDATE keep_containers SET deleted = ?, deleted_by = ? WHERE random_id = ? AND zone = ?", {
+            true,
+            citizenid,
+            random_id,
+            zone_name
+        }, function()
+            Notification_S(src, "Container has been removed!", "primary")
+            TriggerClientEvent("keep-containers:client:update_zone", -1, zone_name)
+        end)
 
-    MySQL.Async.execute("UPDATE keep_containers SET deleted = ?, deleted_by = ? WHERE random_id = ? AND zone = ?", {
-        true,
-        citizenid,
-        random_id,
-        zone_name
-     }, function()
-        Notification_S(src, "Container has been removed!", "primary")
-        TriggerClientEvent("keep-containers:client:update_zone", -1, zone_name)
     end)
+    
 end)
 
 RegisterNetEvent("keep-containers:server:container:update_position", function( random_id, zone_name, new_position )
