@@ -19,7 +19,7 @@ function Qb_target( private, entity )
             {
                 icon = "fas fa-box",
                 label = "Delete Container",
-                canInteract = function() return SuperUser() end,
+                --canInteract = function() return SuperUser() end,
                 action = function() DeleteContainer(private, entity) end
              },
             {
@@ -30,8 +30,8 @@ function Qb_target( private, entity )
              },
              {
                 icon = "fa-solid fa-scissors",
-                label = "Boltcutter (Police)",
-                canInteract = function() return HasAccessToBoltCutter() end,
+                label = "Boltcutter",
+                --canInteract = function() return HasAccessToBoltCutter(private,entity) end,
                 action = function() BoltCutter(private, entity) end
              }
         },
