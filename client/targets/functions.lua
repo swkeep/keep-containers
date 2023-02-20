@@ -353,11 +353,16 @@ RegisterNetEvent("keep-containers:targets:use_bolt_cutter", function( entity, ra
 
 function BoltCutter( private, entity )
     local zone_name, Zone = GetCurrentZone()
+    print(zone_name , Zone)
     if not zone_name or not Zone then
         Notification_c("The container cannot be outside the depot!", "error")
         return
     end
-    TriggerServerEvent("keep-containers:server:use_bolt_cutter", entity, private.random_id, zone_name)
+    exports['ps-ui']:Thermite(function(success)
+        if success then
+            TriggerServerEvent("keep-containers:server:use_bolt_cutter", entity, private.random_id, zone_name)
+        end
+     end, 10, 5, 3)
 end
 
 function SuperUser()
