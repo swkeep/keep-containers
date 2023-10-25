@@ -17,6 +17,7 @@ Config.input = "qb-input" -- keep-input / qb-input / ox_lib (ESX)
 Config.esx_target = "ox_target" -- ox_target / qtarget (ONLY ESX won't effect qbcore)
 
 Config.CanOwnerRemove = false -- Can the owner of the container remove it? (If False only admins can remove containers)
+Config.EnableBlips = true -- enable / diable blips on the map
 
 Config.container_depots = {
     -- when adding new zone make sure it has enough minZ and maxZ or might get into issue with placing system
