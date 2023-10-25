@@ -21,7 +21,7 @@ Config.CanOwnerRemove = false -- Can the owner of the container remove it? (If F
 Config.container_depots = {
     -- when adding new zone make sure it has enough minZ and maxZ or might get into issue with placing system
     ["LT_WELD_SUPPLY"] = {
-        name = "LT Weld Ssupply",
+        name = "LT Weld Supply",
         positions = {
             vector2(1219.7977294922, -1369.8439941406),
             vector2(1177.3232421875, -1366.3834228516),
