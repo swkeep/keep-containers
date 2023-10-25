@@ -19,7 +19,7 @@ function Qtarget( private, entity )
             {
                 icon = "fas fa-trash",
                 label = "Delete Container",
-                canInteract = function() return SuperUser() end,
+                --canInteract = function() return SuperUser() end,
                 action = function() DeleteContainer(private, entity) end
              },
             {
