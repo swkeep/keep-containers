@@ -12,15 +12,15 @@ local types = {
     ["SMALL"] = {
         size = 75000,
         slots = 25
-     },
+    },
     ["MID"] = {
         size = 100000,
         slots = 50
-     },
+    },
     ["BIG"] = {
         size = 500000,
         slots = 75
-     }
+    }
 }
 
 -- container's objects
@@ -71,7 +71,7 @@ local Object = {
             offset = vector3(0, 0, 0)
         },
         ["green"] = {
-            -- no logo 
+            -- no logo
             name = "prop_container_01mb", -- Embedded Collision, basegame
             offset = vector3(0, 0, 0)
         },
@@ -118,22 +118,22 @@ local containers = {
     ["container_green_small"] = {
         type = types.SMALL,
         object = Object.SMALL.green
-     },
+    },
 
     ["container_blue_mid"] = {
         type = types.BIG,
         object = Object.BIG.teal
-     },
+    },
 
     ["container_old_mid"] = {
         type = types.BIG,
         object = Object.MID.old
-     },
+    },
 
     ["container_white_mid"] = {
         type = types.BIG,
         object = Object.BIG.white
-     }
+    }
 }
 
 -- QBCORE
@@ -141,28 +141,28 @@ local qbcore_containers = {
     ["containergreensmall"] = {
         type = types.SMALL,
         object = Object.SMALL.green
-     },
+    },
 
     ["containerbluemid"] = {
         type = types.BIG,
         object = Object.BIG.teal
-     },
+    },
 
     ["containeroldmid"] = {
         type = types.BIG,
         object = Object.MID.old
-     },
+    },
 
     ["containerwhitemid"] = {
         type = types.BIG,
         object = Object.BIG.white
-     }
+    }
 }
 
-function GetContainerInfromation( container_name )
+function GetContainerInfromation(container_name)
     if Framework() == 1 then
         if qbcore_containers[container_name] then return qbcore_containers[container_name] end
-    elseif Framework() == 2 then
+    elseif Framework() == 2 or Framework() == 3 then
         if containers[container_name] then return containers[container_name] end
     end
     return false
@@ -171,7 +171,7 @@ end
 function GetContainerItems()
     if Framework() == 1 then
         return qbcore_containers
-    elseif Framework() == 2 then
+    elseif Framework() == 2 or Framework() == 3 then
         return containers
     end
 end

@@ -9,7 +9,7 @@
 -- https://github.com/swkeep
 ---print tables : debug
 ---@param node table
-function print_table( node )
+function print_table(node)
     local cache, stack, output = {}, {}, {}
     local depth = 1
     local output_str = "{\n"
@@ -21,7 +21,6 @@ function print_table( node )
         local cur_index = 1
         for k, v in pairs(node) do
             if (cache[node] == nil) or (cur_index >= cache[node]) then
-
                 if (string.find(output_str, "}", output_str:len())) then
                     output_str = output_str .. ",\n"
                 elseif not (string.find(output_str, "\n", output_str:len())) then
@@ -83,26 +82,26 @@ function print_table( node )
 end
 
 -- Return the first index with the given value (or nil if not found).
-function IndexOf( array, value )
+function IndexOf(array, value)
     for i, v in ipairs(array) do if v == value then return i end end
     return nil
 end
 
 -- Return a key with the given value (or nil if not found).  If there are
 -- multiple keys with that value, the particular key returned is arbitrary.
-function KeyOf( tbl, value )
+function KeyOf(tbl, value)
     for k, v in pairs(tbl) do if v == value then return k end end
     return nil
 end
 
-function RoundNum( n ) return math.floor(n + 0.5) end
+function RoundNum(n) return math.floor(n + 0.5) end
 
-function Round( num, dp )
+function Round(num, dp)
     local mult = 10 ^ (dp or 0)
     return math.floor(num * mult + 0.5) / mult
 end
 
-function RandomID( length )
+function RandomID(length)
     local string = ""
     for i = 1, length do
         local str = string.char(math.random(97, 122))
@@ -125,25 +124,27 @@ function Framework()
         return 1
     elseif Config.FrameWork:lower() == "esx" then
         return 2
+    elseif Config.FrameWork:lower() == "qbox" then
+        return 3
     end
 end
 
 function GetCoreObject()
-    if Framework() == 1 then
-        -- QBCore 
+    if Framework() == 1 or Framework() == 3 then
+        -- QBCore
         return exports["qb-core"]:GetCoreObject()
     elseif Framework() == 2 then
         return exports["es_extended"]:getSharedObject()
     end
 end
 
-function TableToVector3( t ) return vector3(t.x, t.y, t.z) end
+function TableToVector3(t) return vector3(t.x, t.y, t.z) end
 
-function LoadModel( hash )
+function LoadModel(hash)
     if not HasModelLoaded(hash) then
         RequestModel(hash)
         while not HasModelLoaded(hash) do Wait(10) end
     end
 end
 
-function WaitForEntity( entity ) while not DoesEntityExist(entity) do Wait(10) end end
+function WaitForEntity(entity) while not DoesEntityExist(entity) do Wait(10) end end

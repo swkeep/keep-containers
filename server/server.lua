@@ -41,23 +41,23 @@ local function init_database()
     ]]
     }
 
-    local function trim1( s ) return (s:gsub("^%s*(.-)%s*$", "%1")) end
+    local function trim1(s) return (s:gsub("^%s*(.-)%s*$", "%1")) end
 
     for key, query in pairs(array) do MySQL.Sync.fetchScalar(trim1(query), {}) end
 end
 
 CreateThread(function() init_database() end)
 
-local function Player( source )
-    if Framework == 1 then
+local function Player(source)
+    if Framework == 1 or Framework == 3 then
         return Core.Functions.GetPlayer(source)
     elseif Framework == 2 then
         return Core.GetPlayerFromId(source)
     end
 end
 
-local function GetCitizenId( Player )
-    if Framework == 1 then
+local function GetCitizenId(Player)
+    if Framework == 1 or Framework == 3 then
         if not Player then return -1 end
         return Player.PlayerData.citizenid
     elseif Framework == 2 then
@@ -65,17 +65,17 @@ local function GetCitizenId( Player )
     end
 end
 
-local function GetJob( source )
+local function GetJob(source)
     local player = Player(source)
-    if Framework == 1 then
-        return player.PlayerData.job.name ,player.PlayerData.job.grade.level
+    if Framework == 1 or Framework == 3 then
+        return player.PlayerData.job.name, player.PlayerData.job.grade.level
     elseif Framework == 2 then
         local job = player.getJob()
         return job.name, job.grade
     end
 end
 
-local function HasAccessToBoltCutter( source )
+local function HasAccessToBoltCutter(source)
     local job_name, job_grade = GetJob(source)
 
     if Config.bolt_cutter[tostring(job_name)] then
@@ -85,11 +85,11 @@ local function HasAccessToBoltCutter( source )
     return false
 end
 
-local function HasBoltCutter( source, player )
+local function HasBoltCutter(source, player)
     if Framework == 1 then
         local item = player.Functions.GetItemByName(Config.bolt_cutter_item_name)
         if item then
-             return true
+            return true
         end
         return false
     elseif Framework == 2 then
@@ -103,21 +103,21 @@ local function HasBoltCutter( source, player )
     end
 end
 
-local function remove_item( source, Player, item_name, amount, slot )
+local function remove_item(source, Player, item_name, amount, slot)
     local res = Player.Functions.RemoveItem(item_name, amount, slot)
     TriggerClientEvent("qb-inventory:client:ItemBox", source, Core.Shared.Items[item_name], "remove")
     return res
 end
 
-local function RemoveItem( source, Player, item_name, amount, slot )
-    if Framework == 1 then
+local function RemoveItem(source, Player, item_name, amount, slot)
+    if Framework == 1 or Framework == 3 then
         return remove_item(source, Player, item_name, amount, slot)
     elseif Framework == 2 then
         return Player.removeInventoryItem(item_name, amount)
     end
 end
 
-RegisterNetEvent("keep-containers:server:create_container", function( password, position, zone_name )
+RegisterNetEvent("keep-containers:server:create_container", function(password, position, zone_name)
     local function is_a_valid_zone()
         if Config.container_depots[zone_name] then return true end
         return false
@@ -159,7 +159,7 @@ RegisterNetEvent("keep-containers:server:create_container", function( password, 
         zone_name,
         false,
         ""
-     }
+    }
     MySQL.Async.insert(sqlQuery, QueryData, function()
         creation_list[src] = nil
         TriggerClientEvent("keep-containers:client:update_zone", -1, zone_name)
@@ -167,13 +167,13 @@ RegisterNetEvent("keep-containers:server:create_container", function( password, 
     end)
 end)
 
-CreateCallback("keep-containers:server:GET:ZONE:containers", function( source, cb, zone_name )
+CreateCallback("keep-containers:server:GET:ZONE:containers", function(source, cb, zone_name)
     MySQL.Async.fetchAll("SELECT random_id,position,container_type FROM keep_containers WHERE zone = ? and deleted = false", {
         zone_name
-     }, function( res ) cb(res) end)
+    }, function(res) cb(res) end)
 end)
 
-function VerifyPassword( src, password, passwordHash, notification )
+function VerifyPassword(src, password, passwordHash, notification)
     if not password or password == "" or not passwordHash then
         if notification then Notification_S(src, "Bad password input!", "error") end
         return false
@@ -187,11 +187,11 @@ function VerifyPassword( src, password, passwordHash, notification )
     end
 end
 
-RegisterNetEvent("keep-containers:server:container:check_password", function( random_id, password, zone_name )
+RegisterNetEvent("keep-containers:server:container:check_password", function(random_id, password, zone_name)
     local src = source
     MySQL.Async.fetchAll("SELECT container_type, password FROM keep_containers WHERE random_id = ?", {
         random_id
-     }, function( res )
+    }, function(res)
         res = res[1]
         local container_type = GetContainerInfromation(res.container_type)
         local type = container_type.type
@@ -200,7 +200,7 @@ RegisterNetEvent("keep-containers:server:container:check_password", function( ra
         if VerifyPassword(src, password, res.password, true) == true then
             if Framework == 1 then
                 TriggerClientEvent("keep-containers:client:open", src, container_type.type)
-            elseif Framework == 2 then
+            elseif Framework == 2 or Framework == 3 then
                 local id = "Container_" .. random_id
                 exports["ox_inventory"]:RegisterStash(id, "Container", type.slots, type.size)
                 TriggerClientEvent("keep-containers:client:open", src, container_type.type)
@@ -209,7 +209,7 @@ RegisterNetEvent("keep-containers:server:container:check_password", function( ra
     end)
 end)
 
-RegisterNetEvent("keep-containers:server:use_bolt_cutter", function( entity, random_id, zone_name )
+RegisterNetEvent("keep-containers:server:use_bolt_cutter", function(entity, random_id, zone_name)
     local src = source
     local player = Player(src)
     if not HasBoltCutter(src, player) then
@@ -223,7 +223,7 @@ RegisterNetEvent("keep-containers:server:use_bolt_cutter", function( entity, ran
     TriggerClientEvent("keep-containers:targets:use_bolt_cutter", src, entity, random_id, zone_name)
 end)
 
-RegisterNetEvent("keep-containers:server:open_with_bolt_cutter", function( random_id, zone_name )
+RegisterNetEvent("keep-containers:server:open_with_bolt_cutter", function(random_id, zone_name)
     local src = source
     local player = Player(src)
     if not HasAccessToBoltCutter(src) then
@@ -244,7 +244,7 @@ RegisterNetEvent("keep-containers:server:open_with_bolt_cutter", function( rando
 
     MySQL.Async.fetchAll("SELECT container_type FROM keep_containers WHERE random_id = ?", {
         random_id
-     }, function( res )
+    }, function(res)
         res = res[1]
         local container_type = GetContainerInfromation(res.container_type)
         local type = container_type.type
@@ -252,7 +252,7 @@ RegisterNetEvent("keep-containers:server:open_with_bolt_cutter", function( rando
 
         if Framework == 1 then
             TriggerClientEvent("keep-containers:client:open", src, container_type.type)
-        elseif Framework == 2 then
+        elseif Framework == 2 or Framework == 3 then
             local id = "Container_" .. random_id
             exports["ox_inventory"]:RegisterStash(id, "Container", type.slots, type.size)
             TriggerClientEvent("keep-containers:client:open", src, container_type.type)
@@ -260,12 +260,12 @@ RegisterNetEvent("keep-containers:server:open_with_bolt_cutter", function( rando
     end)
 end)
 
-function is_owner( owner_citizenid, current_citizenid )
+function is_owner(owner_citizenid, current_citizenid)
     if owner_citizenid == current_citizenid then return true end
     return false
 end
 
-RegisterNetEvent("keep-containers:server:container:change_password", function( random_id, current_password, new_password, zone_name )
+RegisterNetEvent("keep-containers:server:container:change_password", function(random_id, current_password, new_password, zone_name)
     local src = source
     local Player = Player(src)
     local citizenid = GetCitizenId(Player)
@@ -278,7 +278,7 @@ RegisterNetEvent("keep-containers:server:container:change_password", function( r
 
     MySQL.Async.fetchAll("SELECT id,owner_citizenid, password FROM keep_containers WHERE random_id = ?", {
         random_id
-     }, function( res )
+    }, function(res)
         res = res[1]
         if not is_owner(res.owner_citizenid, citizenid) then
             Notification_S(src, "Only the owner of this container can change the password!", "error")
@@ -289,14 +289,14 @@ RegisterNetEvent("keep-containers:server:container:change_password", function( r
             MySQL.Async.execute("UPDATE keep_containers SET password = ? WHERE id = ?", {
                 GetPasswordHash(new_password),
                 res.id
-             }, function() Notification_S(src, "Password Updated.", "primary") end)
+            }, function() Notification_S(src, "Password Updated.", "primary") end)
         else
             Notification_S(src, "Current password is wrong.", "error")
         end
     end)
 end)
 
-RegisterNetEvent("keep-containers:server:container:transfer_ownership", function( random_id, zone_name, new_owner )
+RegisterNetEvent("keep-containers:server:container:transfer_ownership", function(random_id, zone_name, new_owner)
     local src = source
     new_owner = tonumber(new_owner)
     if src == new_owner then
@@ -316,7 +316,7 @@ RegisterNetEvent("keep-containers:server:container:transfer_ownership", function
 
     MySQL.Async.fetchAll("SELECT id,owner_citizenid FROM keep_containers WHERE random_id = ?", {
         random_id
-     }, function( res )
+    }, function(res)
         res = res[1]
         if not is_owner(res.owner_citizenid, o_citizenid) then
             Notification_S(src, "Only owner of this container can change transfer ownership!", "primary")
@@ -327,7 +327,7 @@ RegisterNetEvent("keep-containers:server:container:transfer_ownership", function
             citizenid,
             GetPasswordHash("0000"),
             res.id
-         }, function()
+        }, function()
             Notification_S(src, "Transfer completed.", "primary")
             Notification_S(new_owner, "Transfer completed.", "primary")
             Notification_S(new_owner, "Password is set to '0000'", "success")
@@ -335,12 +335,12 @@ RegisterNetEvent("keep-containers:server:container:transfer_ownership", function
     end)
 end)
 
-local function is_super_user( citizenid )
+local function is_super_user(citizenid)
     if Config.super_users[citizenid] and Config.super_users[citizenid] == true then return true end
     return false
 end
 
-RegisterNetEvent("keep-containers:server:container:delete", function( random_id, zone_name )
+RegisterNetEvent("keep-containers:server:container:delete", function(random_id, zone_name)
     local src = source
     local player = Player(src)
     local citizenid = GetCitizenId(player)
@@ -355,13 +355,13 @@ RegisterNetEvent("keep-containers:server:container:delete", function( random_id,
         citizenid,
         random_id,
         zone_name
-     }, function()
+    }, function()
         Notification_S(src, "Container has been removed!", "primary")
         TriggerClientEvent("keep-containers:client:update_zone", -1, zone_name)
     end)
 end)
 
-RegisterNetEvent("keep-containers:server:container:update_position", function( random_id, zone_name, new_position )
+RegisterNetEvent("keep-containers:server:container:update_position", function(random_id, zone_name, new_position)
     local src = source
     local player = Player(src)
     local citizenid = GetCitizenId(player)
@@ -379,28 +379,27 @@ RegisterNetEvent("keep-containers:server:container:update_position", function( r
 
     MySQL.Async.fetchAll("SELECT id,owner_citizenid,container_type FROM keep_containers WHERE random_id = ?", {
         random_id
-     }, function( res )
+    }, function(res)
         res = res[1]
         MySQL.Async.execute("UPDATE keep_containers SET position = ? WHERE id = ?", {
             json.encode(new_position),
             res.id
-         }, function( res )
+        }, function(res)
             if res then
                 Notification_S(src, "Completed.", "primary")
                 TriggerClientEvent("keep-containers:client:update_zone", -1, zone_name)
             end
         end)
     end)
-
 end)
 
 ------------------------------
 --          ITEMS
 ------------------------------
 
-if Framework == 1 then
+if Framework == 1 or Framework == 3 then
     for k, v in pairs(GetContainerItems()) do
-        Core.Functions.CreateUseableItem(k, function( source, item )
+        Core.Functions.CreateUseableItem(k, function(source, item)
             local player = Player(source)
             if not player then return end
             creation_list[source] = k
@@ -409,7 +408,7 @@ if Framework == 1 then
     end
 elseif Framework == 2 then
     for k, v in pairs(GetContainerItems()) do
-        Core.RegisterUsableItem(k, function( playerId )
+        Core.RegisterUsableItem(k, function(playerId)
             local player = Player(playerId)
             if not player then return end
             creation_list[playerId] = k

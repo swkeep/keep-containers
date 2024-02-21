@@ -12,8 +12,8 @@ Config = Config or {}
 -- to add more items/containers check shared/containers.lua
 
 Config.MagicTouch = false
-Config.FrameWork = "qb" -- qb/esx
-Config.input = "qb-input" -- keep-input / qb-input / ox_lib (ESX)
+Config.FrameWork = "qb"         -- qb/esx/qbox
+Config.input = "ox_lib"         -- keep-input / qb-input / ox_lib (ESX)
 Config.esx_target = "ox_target" -- ox_target / qtarget (ONLY ESX won't effect qbcore)
 
 Config.container_depots = {
@@ -25,7 +25,7 @@ Config.container_depots = {
             vector2(1177.3232421875, -1366.3834228516),
             vector2(1183.0499267578, -1292.2061767578),
             vector2(1226.3927001953, -1296.7211914062)
-         },
+        },
         minz = 33.00,
         maxz = 40.00,
         blip = {
@@ -34,7 +34,7 @@ Config.container_depots = {
             scale = 1.5,
             color = 43,
             sprite = 677
-         }
+        }
     },
     ["POSTAL"] = {
         name = "Postal Depot",
@@ -53,14 +53,14 @@ Config.container_depots = {
             scale = 1.5,
             color = 43,
             sprite = 677
-         }
+        }
     }
 }
 
 -- just give it to admins they can access containers and remove them!
 Config.super_users = {
-    ["Gxxxxxxx2"] = true, -- < in qb use character citizen id
-    ["char1:8xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5"] = true --- < in esx use users's identifier 
+    ["Gxxxxxxx2"] = true,                                      -- < in qb use character citizen id
+    ["char1:8xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5"] = true --- < in esx use users's identifier
 }
 
 -- Who can use BoltCutter (Police by defualt)

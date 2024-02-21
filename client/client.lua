@@ -19,9 +19,9 @@ Core = GetCoreObject() -- framwork
 local Framework = Framework()
 Containers = {
     data = {}
- }
+}
 
-function is_super_user( citizenid )
+function is_super_user(citizenid)
     if Config.super_users[citizenid] and Config.super_users[citizenid] == true then return true end
     return false
 end
@@ -34,7 +34,7 @@ function PlayerData()
     end
 end
 
-function GetCitizenId( PlayerData )
+function GetCitizenId(PlayerData)
     if Framework == 1 then
         if not PlayerData then return -1 end
         return PlayerData.citizenid
@@ -46,13 +46,13 @@ end
 function GetJob()
     local PlayerData = PlayerData()
     if Framework == 1 then
-        return PlayerData.job.name ,PlayerData.job.grade.level
+        return PlayerData.job.name, PlayerData.job.grade.level
     elseif Framework == 2 then
         return PlayerData.job.name, PlayerData.job.grade
     end
 end
 
-function Notification_c( msg, type )
+function Notification_c(msg, type)
     if Config.input == "ox_lib" then if type == "primary" then type = "inform" end end
 
     if Config.input ~= "ox_lib" then
@@ -70,7 +70,7 @@ function Notification_c( msg, type )
                 style = {
                     backgroundColor = "#141517",
                     color = "#909296"
-                 },
+                },
                 icon = "ban",
                 iconColor = "#C53030"
             })
@@ -79,14 +79,14 @@ function Notification_c( msg, type )
                 title = "Container Depot",
                 description = msg,
                 type = type
-             })
+            })
         end
     end
 end
 
-RegisterNetEvent("keep-containers:client:notification", function( msg, type ) Notification_c(msg, type) end)
+RegisterNetEvent("keep-containers:client:notification", function(msg, type) Notification_c(msg, type) end)
 
-local SpawnObject = function( model, coord, rotation, offset )
+local SpawnObject = function(model, coord, rotation, offset)
     local modelHash = GetHashKey(model)
     LoadModel(modelHash)
     local entity = CreateObject(modelHash, coord.x + offset.x, coord.y + offset.y, coord.z + offset.z, false)
@@ -100,7 +100,7 @@ local SpawnObject = function( model, coord, rotation, offset )
     return entity
 end
 
-local function ShowDrawText( text )
+local function ShowDrawText(text)
     if Framework == 1 then
         exports["qb-core"]:DrawText(text or "Container Depot")
     elseif Config.input == "ox_lib" then
@@ -110,7 +110,7 @@ local function ShowDrawText( text )
                 borderRadius = 0,
                 backgroundColor = "#48BB78",
                 color = "white"
-             }
+            }
         })
     end
 end
@@ -123,7 +123,7 @@ local function HideDrawText()
     end
 end
 
-local CreateBlip = function( options )
+local CreateBlip = function(options)
     local blip = AddBlipForCoord(options.coords)
     SetBlipSprite(blip, options.sprite)
     SetBlipScale(blip, options.scale or 1.0)
@@ -146,13 +146,13 @@ local function Init()
             minZ = v.minz,
             maxZ = v.maxz,
             debugPoly = Config.MagicTouch
-         })
-        ZONE[k]:onPlayerInOut(function( isPointInside )
+        })
+        ZONE[k]:onPlayerInOut(function(isPointInside)
             if isPointInside then
                 current_zone = k
                 Wait(50)
                 ShowDrawText(v.name)
-                TriggerCallback("keep-containers:server:GET:ZONE:containers", function( containers ) for k, container in pairs(containers) do Containers:new(container) end end, current_zone)
+                TriggerCallback("keep-containers:server:GET:ZONE:containers", function(containers) for k, container in pairs(containers) do Containers:new(container) end end, current_zone)
             else
                 current_zone = nil
                 Containers:clean_up()
@@ -162,24 +162,22 @@ local function Init()
     end
 end
 
-function Containers:new( options )
+function Containers:new(options)
     local _self = {}
     local private = {
         random_id = options.random_id,
         position = json.decode(options.position),
         container_type = options.container_type,
         objects = {}
-     }
+    }
 
-    local function add_target( entity )
-        if Framework == 1 then
+    local function add_target(entity)
+        if (Config.esx_target):lower() == "ox_target" then
+            Ox_target(private, entity)
+        elseif (Config.esx_target):lower() == "qtarget" then
+            Qtarget(private, entity)
+        elseif (Config.esx_target):lower() == "qb-target" then
             Qb_target(private, entity)
-        elseif Framework == 2 then
-            if (Config.esx_target):lower() == "ox_target" then
-                Ox_target(private, entity)
-            elseif (Config.esx_target):lower() == "qtarget" then
-                Qtarget(private, entity)
-            end
         end
     end
 
@@ -204,27 +202,28 @@ function Containers:new( options )
 end
 
 function Containers:clean_up() for _, Container in pairs(self.data) do Container.remove_object() end end
+
 function GetCurrentZone() return current_zone, ZONE[current_zone] end
 
-RegisterNetEvent("keep-containers:client:update_zone", function( zone_name )
+RegisterNetEvent("keep-containers:client:update_zone", function(zone_name)
     local current_zone, zone = GetCurrentZone()
     if zone_name == current_zone then
         Containers:clean_up()
-        TriggerCallback("keep-containers:server:GET:ZONE:containers", function( containers ) for k, container in pairs(containers) do Containers:new(container) end end, zone_name)
+        TriggerCallback("keep-containers:server:GET:ZONE:containers", function(containers) for k, container in pairs(containers) do Containers:new(container) end end, zone_name)
     end
 end)
 
-AddEventHandler("onResourceStop", function( resource )
+AddEventHandler("onResourceStop", function(resource)
     if resource ~= GetCurrentResourceName() then return end
     Containers:clean_up()
 end)
 
-AddEventHandler("onResourceStart", function( resourceName )
+AddEventHandler("onResourceStart", function(resourceName)
     if (GetCurrentResourceName() ~= resourceName) then return end
     Init()
 end)
 
-if Framework == 1 then
+if Framework == 1 or Framework == 3 then
     RegisterNetEvent("QBCore:Client:OnPlayerLoaded", function() Init() end)
 elseif Framework == 2 then
     RegisterNetEvent("esx:playerLoaded")
