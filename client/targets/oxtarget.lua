@@ -22,7 +22,7 @@ function Ox_target( private, entity )
             icon = "fas fa-trash",
             distance = 1.0,
             label = "Delete Container",
-            canInteract = function() return SuperUser() end,
+            --canInteract = function() return SuperUser() end,
             onSelect = function() DeleteContainer(private, entity) end
          },
         {

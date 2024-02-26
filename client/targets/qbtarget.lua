@@ -19,7 +19,7 @@ function Qb_target( private, entity )
             {
                 icon = "fas fa-box",
                 label = "Delete Container",
-                canInteract = function() return SuperUser() end,
+                --canInteract = function() return SuperUser() end,
                 action = function() DeleteContainer(private, entity) end
              },
             {
