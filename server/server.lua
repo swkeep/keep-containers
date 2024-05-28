@@ -187,23 +187,27 @@ function VerifyPassword(src, password, passwordHash, notification)
     end
 end
 
+local query = "SELECT container_type, password FROM keep_containers WHERE random_id = ?"
+
 RegisterNetEvent("keep-containers:server:container:check_password", function(random_id, password, zone_name)
     local src = source
-    MySQL.Async.fetchAll("SELECT container_type, password FROM keep_containers WHERE random_id = ?", {
-        random_id
-    }, function(res)
-        res = res[1]
-        local container_type = GetContainerInfromation(res.container_type)
-        local type = container_type.type
-        type.random_id = random_id
+    MySQL.Async.fetchAll(query, { random_id }, function(results)
+        local result = results[1]
+        local container_info = GetContainerInfromation(result.container_type)
+        if not container_info then return end
 
-        if VerifyPassword(src, password, res.password, true) == true then
+        if VerifyPassword(src, password, result.password, true) then
+            local container_id = "container-" .. random_id
             if Framework == 1 then
-                TriggerClientEvent("keep-containers:client:open", src, container_type.type)
+                exports['qb-inventory']:OpenInventory(src, container_id, {
+                    slots = container_info.slots or 10,
+                    maxweight = container_info.size or 10000
+                })
+                -- TriggerClientEvent("keep-containers:client:open", src, container_type.type) -- old qb-inventory
             elseif Framework == 2 or Framework == 3 then
-                local id = "Container_" .. random_id
-                exports["ox_inventory"]:RegisterStash(id, "Container", type.slots, type.size)
-                TriggerClientEvent("keep-containers:client:open", src, container_type.type)
+                local stash_id = "Container_" .. random_id
+                exports["ox_inventory"]:RegisterStash(stash_id, "Container", container_info.slots, container_info.size)
+                TriggerClientEvent("keep_containers:client:open", src, container_info.type)
             end
         end
     end)
