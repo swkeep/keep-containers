@@ -195,19 +195,20 @@ RegisterNetEvent("keep-containers:server:container:check_password", function(ran
         local result = results[1]
         local container_info = GetContainerInfromation(result.container_type)
         if not container_info then return end
+        local stash_info = container_info.type
 
         if VerifyPassword(src, password, result.password, true) then
             local container_id = "container-" .. random_id
             if Framework == 1 then
                 exports['qb-inventory']:OpenInventory(src, container_id, {
-                    slots = container_info.slots or 10,
-                    maxweight = container_info.size or 10000
+                    slots = stash_info.slots or 10,
+                    maxweight = stash_info.size or 10000
                 })
                 -- TriggerClientEvent("keep-containers:client:open", src, container_type.type) -- old qb-inventory
             elseif Framework == 2 or Framework == 3 then
                 local stash_id = "Container_" .. random_id
-                exports["ox_inventory"]:RegisterStash(stash_id, "Container", container_info.slots, container_info.size)
-                TriggerClientEvent("keep_containers:client:open", src, container_info.type)
+                exports["ox_inventory"]:RegisterStash(stash_id, "Container", stash_info.slots or 10, stash_info.size or 10000)
+                TriggerClientEvent("keep_containers:client:open", src, stash_info.type)
             end
         end
     end)
@@ -255,7 +256,12 @@ RegisterNetEvent("keep-containers:server:open_with_bolt_cutter", function(random
         type.random_id = random_id
 
         if Framework == 1 then
-            TriggerClientEvent("keep-containers:client:open", src, container_type.type)
+            local container_id = "container-" .. random_id
+            exports['qb-inventory']:OpenInventory(src, container_id, {
+                slots = type.slots or 10,
+                maxweight = type.size or 10000
+            })
+            -- TriggerClientEvent("keep-containers:client:open", src, container_type.type)
         elseif Framework == 2 or Framework == 3 then
             local id = "Container_" .. random_id
             exports["ox_inventory"]:RegisterStash(id, "Container", type.slots, type.size)
