@@ -28,6 +28,7 @@ OR
 - Dynamic object loading
 - Little bit of admin control (WIP)
 - Container placer! (i don't know what to call it!)
+- Ability for the owner to remove the container (Config)
 
 ## Preview
 

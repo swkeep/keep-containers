@@ -354,9 +354,12 @@ RegisterNetEvent("keep-containers:server:container:delete", function(random_id, 
     local src = source
     local player = Player(src)
     local citizenid = GetCitizenId(player)
-
-    if not is_super_user(citizenid) then
+    local citizenidCheck = MySQL.scalar.await('SELECT `owner_citizenid` FROM `keep_containers` WHERE `random_id` = ? LIMIT 1', {random_id}) -- grabs associated owner id
+    if not Config.CanOwnerRemove and not is_super_user(citizenid) then  --if owners cant remove and player not super user exit
         Notification_S(src, "Hmm, you can't do that!", "primary")
+        return
+    elseif Config.CanOwnerRemove and citizenidCheck ~= citizenid then --if owners can remove and player not owner exit
+        Notification_S(src, "Hmm, you don't own this!", "primary")
         return
     end
 
